@@ -3,113 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tikkie Link Converter</title>
+    <title>Tikkie Converter</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Custom font for a clean look */
-        body {
-            font-family: "Inter", sans-serif;
-            background-color: #f3f4f6; /* Light gray background */
+        /* Basic styling for body and container */
+        body { font-family: "Inter", sans-serif; background-color: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 1rem; }
+        .container { max-width: 600px; width: 100%; padding: 1.5rem; background-color: #fff; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        /* Textarea styles for input and output */
+        textarea { resize: vertical; min-height: 80px; }
+        /* Styling for the message box */
+        .message-box { background-color: #e0f2fe; color: #0c4a6e; border-left: 4px solid #38bdf8; }
+
+        /* Custom toggle switch styling (for better visuals than a default checkbox) */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px; /* Width of the switch */
+            height: 24px; /* Height of the switch */
         }
-        /* Style for the container to center content */
-        .container {
-            max-width: 600px;
-            margin: 2rem auto;
-            padding: 1.5rem;
-            background-color: #ffffff;
-            border-radius: 1rem; /* Rounded corners */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
         }
-        /* Textarea styling */
-        textarea {
-            resize: vertical; /* Allow vertical resizing */
-            min-height: 100px; /* Minimum height */
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc; /* Background color when off */
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 24px; /* Rounded corners for the slider */
         }
-        /* Button styling */
-        button {
-            transition: background-color 0.2s ease-in-out;
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px; /* Height of the circle handle */
+            width: 16px; /* Width of the circle handle */
+            left: 4px; /* Initial position from left */
+            bottom: 4px; /* Initial position from bottom */
+            background-color: white; /* Color of the handle */
+            -webkit-transition: .4s;
+            transition: .4s;
+            border-radius: 50%; /* Make it a circle */
         }
-        button:hover {
-            background-color: #1d4ed8; /* Darker blue on hover */
+        input:checked + .slider {
+            background-color: #2196F3; /* Background color when on */
         }
-        /* Message box styling */
-        .message-box {
-            background-color: #e0f2fe; /* Light blue background */
-            color: #0c4a6e; /* Dark blue text */
-            border-left: 4px solid #38bdf8; /* Blue border */
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+        input:checked + .slider:before {
+            -webkit-transform: translateX(20px); /* Move handle to the right when checked */
+            -ms-transform: translateX(20px);
+            transform: translateX(20px);
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="container w-full">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Tikkie Link Converter</h1>
+<body>
+    <div class="container">
+        <h1 class="text-2xl font-bold text-center text-gray-800 mb-6">Tikkie Link Converter</h1>
 
-        <div class="mb-6">
-            <label for="inputText" class="block text-gray-700 text-sm font-medium mb-2">
-                Paste your Tikkie message here:
-            </label>
-            <textarea
-                id="inputText"
-                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
-                placeholder="e.g., Please could you pay me € 20.00 for 'Jaimie' at https://tikkie.me/pay/lsl0ma0c11ht4iu3mvi8 This link is valid until 14 June"
-            ></textarea>
+        <!-- Input Textarea -->
+        <div class="mb-4">
+            <textarea id="inputText" class="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" placeholder="Paste Tikkie message here..."></textarea>
         </div>
 
-        <button
-            id="convertButton"
-            class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold text-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-        >
-            Convert Tikkie Message
-        </button>
-
-        <div class="mt-8">
-            <label for="outputText" class="block text-gray-700 text-sm font-medium mb-2">
-                Converted Message:
+        <!-- Strip Mode Toggle Switch -->
+        <div class="flex items-center justify-end mb-4">
+            <span class="text-gray-700 text-sm font-medium mr-3">Strip Mode (Link Only)</span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="stripModeToggle">
+                <span class="slider"></span>
             </label>
-            <textarea
-                id="outputText"
-                class="w-full p-3 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed"
-                readonly
-                placeholder="Your converted message will appear here."
-            ></textarea>
         </div>
 
-        <button
-            id="copyButton"
-            class="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold text-lg mt-4 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
-        >
-            Copy to Clipboard
-        </button>
+        <!-- Convert Button -->
+        <button id="convertButton" class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">Convert</button>
 
-        <div id="messageBox" class="message-box p-3 rounded-lg mt-6 hidden">
-            </div>
+        <!-- Output Textarea -->
+        <div class="mt-4">
+            <textarea id="outputText" class="w-full p-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-700 cursor-not-allowed" readonly placeholder="Converted message..."></textarea>
+        </div>
+
+        <!-- Copy Button -->
+        <button id="copyButton" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold mt-2 hover:bg-green-700 focus:ring-2 focus:ring-green-500">Copy</button>
+
+        <!-- Message Box for feedback -->
+        <div id="messageBox" class="message-box p-3 rounded-lg mt-4 hidden"></div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const inputText = document.getElementById('inputText');
-            const outputText = document.getElementById('outputText');
-            const convertButton = document.getElementById('convertButton');
-            const copyButton = document.getElementById('copyButton');
-            const messageBox = document.getElementById('messageBox');
+            // Get references to all necessary DOM elements
+            const [inputText, outputText, convertButton, copyButton, messageBox, stripModeToggle] =
+                ['inputText', 'outputText', 'convertButton', 'copyButton', 'messageBox', 'stripModeToggle'].map(id => document.getElementById(id));
 
-            // Function to show a message in the message box
-            function showMessage(message, type = 'info') {
-                messageBox.textContent = message;
-                messageBox.classList.remove('hidden');
-                // You can add different classes based on type (e.g., 'error', 'success')
-                if (type === 'error') {
-                    messageBox.classList.add('bg-red-100', 'text-red-800', 'border-red-400');
-                    messageBox.classList.remove('bg-blue-100', 'text-blue-800', 'border-blue-400');
-                } else {
-                    messageBox.classList.add('bg-blue-100', 'text-blue-800', 'border-blue-400');
-                    messageBox.classList.remove('bg-red-100', 'text-red-800', 'border-red-400');
-                }
-                setTimeout(() => {
-                    messageBox.classList.add('hidden');
-                }, 3000); // Hide after 3 seconds
-            }
+            // Function to display messages to the user (e.g., "Copied!", "Error!")
+            const showMessage = (msg, type = 'info') => {
+                messageBox.textContent = msg; // Set the message text
+                // Dynamically apply Tailwind classes based on message type (info/error)
+                messageBox.className = `message-box p-3 rounded-lg mt-4 ${type === 'error' ? 'bg-red-100 text-red-800 border-red-400' : 'bg-blue-100 text-blue-800 border-blue-400'}`;
+                messageBox.classList.remove('hidden'); // Show the message box
+                setTimeout(() => messageBox.classList.add('hidden'), 3000); // Hide after 3 seconds
+            };
 
+            // Event listener for the Convert button
             convertButton.addEventListener('click', () => {
                 const input = inputText.value;
                 // Regular expression to find a Tikkie link
@@ -118,31 +120,34 @@
 
                 if (match && match[1]) {
                     const tikkieLink = match[1];
-                    // Construct the new phrase with the extracted link
-                    const newPhrase = `Hoi, hierbij de tikkie van de les van vandaag: ${tikkieLink}`;
-                    outputText.value = newPhrase;
-                    showMessage('Message converted successfully!');
+                    // Check if strip mode is active
+                    if (stripModeToggle.checked) {
+                        outputText.value = tikkieLink; // Only the link
+                    } else {
+                        // Original phrase with the link
+                        outputText.value = `Hoi, hierbij de tikkie van de les van vandaag: ${tikkieLink}`;
+                    }
+                    showMessage('Converted!');
                 } else {
                     outputText.value = ''; // Clear output if no link found
-                    showMessage('No Tikkie link found in the input message. Please check the format.', 'error');
+                    showMessage('No Tikkie link found.', 'error');
                 }
             });
 
+            // Event listener for the Copy button
             copyButton.addEventListener('click', () => {
                 if (outputText.value) {
-                    // Use document.execCommand('copy') for clipboard functionality
-                    // as navigator.clipboard.writeText() might not work in some iframe environments.
-                    outputText.select();
-                    outputText.setSelectionRange(0, 99999); // For mobile devices
+                    outputText.select(); // Select the text in the output area
+                    outputText.setSelectionRange(0, 99999); // For mobile devices to select all text
                     try {
-                        document.execCommand('copy');
-                        showMessage('Copied to clipboard!');
+                        document.execCommand('copy'); // Execute copy command
+                        showMessage('Copied!');
                     } catch (err) {
-                        showMessage('Failed to copy text. Please copy manually.', 'error');
-                        console.error('Failed to copy text: ', err);
+                        showMessage('Failed to copy.', 'error');
+                        console.error('Failed to copy text: ', err); // Log error for debugging
                     }
                 } else {
-                    showMessage('Nothing to copy. Please convert a message first.', 'error');
+                    showMessage('Nothing to copy.', 'error');
                 }
             });
         });
